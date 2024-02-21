@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" height="733px" preserveAspectRatio="none" style="width:401px;height:733px;background:#FFFFFF;" version="1.1" viewBox="0 0 401 733" width="401px" zoomAndPan="magnify"><defs/><g><!--MD5=[e59cf999063292dce8d6ea34dd10a338]
+class user--><g id="elem_user"><rect codeLine="5" fill="#F1F1F1" height="96.8906" id="user" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="148" x="127.5" y="7"/><ellipse cx="181.25" cy="23" fill="#0000FF" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;"/><path d="M182.0938,29.75 L179.6406,29.75 L179.6406,19.5 L176.5,19.5 L176.5,17.3594 L185.2344,17.3594 L185.2344,19.5 L182.0938,19.5 L182.0938,29.75 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="32" x="201.75" y="27.8467">User</text><line style="stroke:#181818;stroke-width:0.5;" x1="128.5" x2="274.5" y1="39" y2="39"/><ellipse cx="138.5" cy="52.6484" fill="none" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" text-decoration="underline" textLength="12" x="147.5" y="55.9951">id</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="35" x="163.5" y="55.9951">: uint</text><line style="stroke:#181818;stroke-width:1.0;" x1="128.5" x2="274.5" y1="63.2969" y2="63.2969"/><ellipse cx="138.5" cy="76.9453" fill="none" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="122" x="147.5" y="80.292">username : string</text><ellipse cx="138.5" cy="93.2422" fill="none" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="119" x="147.5" y="96.5889">password : string</text></g><!--MD5=[bb7766bbad17497f5a9660e8495d1b6d]
+class post--><g id="elem_post"><rect codeLine="12" fill="#F1F1F1" height="113.1875" id="post" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="119" x="86" y="286"/><ellipse cx="126.2" cy="302" fill="#0000FF" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;"/><path d="M127.0438,308.75 L124.5906,308.75 L124.5906,298.5 L121.45,298.5 L121.45,296.3594 L130.1844,296.3594 L130.1844,298.5 L127.0438,298.5 L127.0438,308.75 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="31" x="145.8" y="306.8467">Post</text><line style="stroke:#181818;stroke-width:0.5;" x1="87" x2="204" y1="318" y2="318"/><ellipse cx="97" cy="331.6484" fill="none" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" text-decoration="underline" textLength="12" x="106" y="334.9951">id</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="35" x="122" y="334.9951">: uint</text><ellipse cx="97" cy="347.9453" fill="none" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/><text fill="#008000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="50" x="106" y="351.292">user_id</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="35" x="160" y="351.292">: uint</text><line style="stroke:#181818;stroke-width:1.0;" x1="87" x2="204" y1="358.5938" y2="358.5938"/><ellipse cx="97" cy="372.2422" fill="none" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="77" x="106" y="375.5889">title : string</text><ellipse cx="97" cy="388.5391" fill="none" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="93" x="106" y="391.8857">content : text</text></g><!--MD5=[aa1236345582ea84fba1a2018df43fcb]
+class comment--><g id="elem_comment"><rect codeLine="20" fill="#F1F1F1" height="145.7813" id="comment" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="202" x="157.5" y="581"/><ellipse cx="220.25" cy="597" fill="#0000FF" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;"/><path d="M221.0938,603.75 L218.6406,603.75 L218.6406,593.5 L215.5,593.5 L215.5,591.3594 L224.2344,591.3594 L224.2344,593.5 L221.0938,593.5 L221.0938,603.75 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="68" x="240.75" y="601.8467">Comment</text><line style="stroke:#181818;stroke-width:0.5;" x1="158.5" x2="358.5" y1="613" y2="613"/><ellipse cx="168.5" cy="626.6484" fill="none" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" text-decoration="underline" textLength="12" x="177.5" y="629.9951">id</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="35" x="193.5" y="629.9951">: uint</text><ellipse cx="168.5" cy="642.9453" fill="none" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/><text fill="#008000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="50" x="177.5" y="646.292">post_id</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="35" x="231.5" y="646.292">: uint</text><ellipse cx="168.5" cy="659.2422" fill="none" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/><text fill="#008000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="50" x="177.5" y="662.5889">user_id</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="35" x="231.5" y="662.5889">: uint</text><ellipse cx="168.5" cy="675.5391" fill="none" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/><text fill="#008000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="137" x="177.5" y="678.8857">parent_comment_id</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="35" x="318.5" y="678.8857">: uint</text><line style="stroke:#181818;stroke-width:1.0;" x1="158.5" x2="358.5" y1="686.1875" y2="686.1875"/><ellipse cx="168.5" cy="699.8359" fill="none" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="93" x="177.5" y="703.1826">content : text</text><ellipse cx="168.5" cy="716.1328" fill="none" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="147" x="177.5" y="719.4795">created_at : datetime</text></g><!--MD5=[387ec737a3fb45370cb9b3d3e839c090]
+class statistic--><g id="elem_statistic"><rect codeLine="30" fill="#F1F1F1" height="113.1875" id="statistic" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="115" x="7" y="597.5"/><ellipse cx="35.05" cy="613.5" fill="#0000FF" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;"/><path d="M35.8938,620.25 L33.4406,620.25 L33.4406,610 L30.3,610 L30.3,607.8594 L39.0344,607.8594 L39.0344,610 L35.8938,610 L35.8938,620.25 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="54" x="51.95" y="618.3467">Statistic</text><line style="stroke:#181818;stroke-width:0.5;" x1="8" x2="121" y1="629.5" y2="629.5"/><ellipse cx="18" cy="643.1484" fill="none" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" text-decoration="underline" textLength="12" x="27" y="646.4951">id</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="35" x="43" y="646.4951">: uint</text><ellipse cx="18" cy="659.4453" fill="none" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/><text fill="#008000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="50" x="27" y="662.792">post_id</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="35" x="81" y="662.792">: uint</text><line style="stroke:#181818;stroke-width:1.0;" x1="8" x2="121" y1="670.0938" y2="670.0938"/><ellipse cx="18" cy="683.7422" fill="none" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="77" x="27" y="687.0889">views : uint</text><ellipse cx="18" cy="700.0391" fill="none" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="70" x="27" y="703.3857">likes : uint</text></g><!--MD5=[25df85b8fe9e7068f516d7facf9ffc47]
+link user to post--><g id="link_user_post"><path codeLine="38" d="M192.13,104.2 C182.29,154.28 166.83,232.93 156.44,285.81 " fill="none" id="user-post" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[2254182ad48e923072ba72252f9c9876]
+link user to comment--><g id="link_user_comment"><path codeLine="39" d="M226.83,104.09 C242.06,137.08 258.5,182.54 258.5,225 C258.5,225 258.5,225 258.5,460 C258.5,499.87 258.5,544.38 258.5,580.6 " fill="none" id="user-comment" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[6c5ccadb04dec79740593e86541d5b47]
+link post to statistic--><g id="link_post_statistic"><path codeLine="41" d="M130.93,399.19 C116.24,455.32 93.7,541.44 79.03,597.5 " fill="none" id="post-statistic" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[5d22c04f95b8c5c8ee788193a9376d57]
+link post to comment--><g id="link_post_comment"><path codeLine="42" d="M165.83,399.19 C184.39,450.01 211.92,525.42 232.15,580.84 " fill="none" id="post-comment" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[a889dc91480d837b5bb8d7cdaf5cd30a]
+link comment to comment--><g id="link_comment_comment"><path codeLine="44" d="M359.62,630.23 C379.96,632.86 394.5,640.79 394.5,654 C394.5,667.21 379.96,675.14 359.62,677.77 " fill="none" id="comment-comment" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[d12cac371a4d09bb42d82965a3be2967]
+@startuml
+!define Table(name,desc) class name as "desc" << (T,blue) >>
+!define foreign_key(x) <color:green>x</color>
+!define primary_key(x) <u>x</u>
+
+Table(user, "User") {
+    +primary_key(id) : uint
+    - - -
+    +username : string
+    +password : string
+}
+
+Table(post, "Post") {
+    +primary_key(id) : uint
+    +foreign_key(user_id) : uint
+    - - -
+    +title : string
+    +content : text
+}
+
+Table(comment, "Comment") {
+    +primary_key(id) : uint
+    +foreign_key(post_id) : uint
+    +foreign_key(user_id) : uint
+    +foreign_key(parent_comment_id) : uint
+    - - -
+    +content : text
+    +created_at : datetime
+}
+
+Table(statistic, "Statistic") {
+    +primary_key(id) : uint
+    +foreign_key(post_id) : uint
+    - - -
+    +views : uint
+    +likes : uint
+}
+
+user - - - - post
+user - - - - comment
+
+post - - - - statistic
+post - - - - comment
+
+comment - - - - comment
+@enduml
+
+@startuml
+
+class user as "User" << (T,blue) >> {
+    +<u>id</u> : uint
+    - - -
+    +username : string
+    +password : string
+}
+
+class post as "Post" << (T,blue) >> {
+    +<u>id</u> : uint
+    +<color:green>user_id</color> : uint
+    - - -
+    +title : string
+    +content : text
+}
+
+class comment as "Comment" << (T,blue) >> {
+    +<u>id</u> : uint
+    +<color:green>post_id</color> : uint
+    +<color:green>user_id</color> : uint
+    +<color:green>parent_comment_id</color> : uint
+    - - -
+    +content : text
+    +created_at : datetime
+}
+
+class statistic as "Statistic" << (T,blue) >> {
+    +<u>id</u> : uint
+    +<color:green>post_id</color> : uint
+    - - -
+    +views : uint
+    +likes : uint
+}
+
+user - - - - post
+user - - - - comment
+
+post - - - - statistic
+post - - - - comment
+
+comment - - - - comment
+@enduml
+
+PlantUML version 1.2022.7(Mon Aug 22 17:01:30 UTC 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: null
+--></g></svg>
