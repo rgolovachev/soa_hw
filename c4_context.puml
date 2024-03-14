@@ -1,8 +1,0 @@
-@startuml
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
-
-Person(customer, "User", "User of the social network")
-System(frontend, "Mobile application")
-Rel(customer, frontend, "Users can register, create, update and delete posts")
-
-@enduml
