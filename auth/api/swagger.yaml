@@ -1,0 +1,113 @@
+openapi: 3.0.0
+info:
+  title: User Management API
+  version: 1.0.0
+servers:
+- url: /
+paths:
+  /register:
+    post:
+      summary: Register user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/register_body'
+        required: true
+      responses:
+        "201":
+          description: User has been registered
+        "400":
+          description: "Failed to decode json OR There is no username or password\
+            \ field in JSON, or one of them (or both) is empty"
+        "409":
+          description: User with this name already registered
+        "500":
+          description: Some error from postgres
+  /update:
+    put:
+      summary: Обновление данных пользователя
+      parameters:
+      - name: Cookie
+        in: header
+        description: auth token
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/update_body'
+        required: true
+      responses:
+        "200":
+          description: Data was updated
+        "400":
+          description: Failed to decode json OR User must specify Cookie header
+        "403":
+          description: Cookie is invalid
+        "500":
+          description: Some error from postgres
+  /login:
+    post:
+      summary: Auth user with login and password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/login_body'
+        required: true
+      responses:
+        "200":
+          description: User has been logined successfully
+          headers:
+            Set-Cookie:
+              description: User login token
+              style: simple
+              explode: false
+              schema:
+                type: string
+        "400":
+          description: "Failed to decode json OR There is no username or password\
+            \ field in JSON, or one of them (or both) is empty"
+        "404":
+          description: There is no such user or password is wrong
+        "500":
+          description: Some error from postgres
+components:
+  schemas:
+    register_body:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    update_body:
+      type: object
+      properties:
+        firstName:
+          type: string
+          nullable: true
+        lastName:
+          type: string
+          nullable: true
+        birthDate:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        telephone:
+          type: string
+          nullable: true
+    login_body:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
