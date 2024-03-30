@@ -1,0 +1,48 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
+' uncomment the following line and comment the first to use locally
+' !include C4_Container.puml
+!include DEVICONS/angular.puml
+!include DEVICONS/swift.puml
+!include DEVICONS/dotnet.puml
+!include DEVICONS/mongodb.puml
+!include DEVICONS/postgresql.puml
+!include <cloudinsight/kafka>
+!include DEVICONS/java.puml
+!include DEVICONS/go.puml
+!include DEVICONS/msql_server.puml
+!include FONTAWESOME/server.puml
+!include FONTAWESOME/envelope.puml
+
+LAYOUT_TOP_DOWN()
+' LAYOUT_AS_SKETCH()
+' LAYOUT_WITH_LEGEND()
+
+title Container diagram for Social Network
+
+Person(customer, "User", "User of the social network")
+
+System_Boundary(mainBoundary, "Social Network System") {
+    Container(frontend, "Mobile application", "Swift", "Mobile application for accessing social networks", "swift")
+    Container(authentication, "Authentication", "Go", "Handles user authentication", "go")
+    Container(posts, "Posts and comments", "Go", "Handles posts and comments", "go")
+    Container(statistics, "Statistics", "Go", "Handles statistics counting (likes, views)", "go")
+    ContainerDb(clickhouse, "db_stats", "ClickHouse", "Storage for statistics", "clickhouse")
+    ContainerDb(postgres, "db_auth", "PostgreSQL", "Storage for auth data", "postgresql")
+    ContainerDb(mongo, "db_text", "MongoDB", "Storage for posts and comments", "mongodb")
+    ContainerQueue(events_queue, "events_queue", "kafka", "", "kafka")
+}
+
+Rel(customer, frontend, "Users can register, create, update and delete posts")
+Rel(frontend, authentication, "Calling Methods", "HTTPS")
+Rel(authentication, posts, "Working with posts and comments", "gRPC")
+Rel(authentication, statistics, "Working with statistics", "gRPC")
+Rel(statistics, clickhouse, "Saving statistics")
+Rel(authentication, postgres, "Saving auth data")
+Rel(posts, mongo, "save posts and comments")
+Rel(posts, events_queue, "view/like events")
+Rel(events_queue, statistics, "view/like events")
+
+@enduml
