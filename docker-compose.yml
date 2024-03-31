@@ -6,6 +6,8 @@ services:
       dockerfile: auth.dockerfile
     ports:
       - 8080:8080
+    volumes:
+      - ./posts:/posts
     depends_on:
       - auth_db
   auth_db:
@@ -19,4 +21,25 @@ services:
     ports:
       - :5432
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./auth/init.sql:/docker-entrypoint-initdb.d/init.sql
+  posts:
+    container_name: posts
+    build:
+      context: ./posts
+      dockerfile: posts.dockerfile
+    ports:
+      - 11777:11777
+    depends_on:
+      - posts_db
+  posts_db:
+    container_name: posts_db
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: posts_db
+      POSTGRES_USER: posts
+      POSTGRES_PASSWORD: super_secret_pass
+    ports:
+      - :5432
+    volumes:
+      - ./posts/init.sql:/docker-entrypoint-initdb.d/init.sql

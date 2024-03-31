@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package posts;
+
+option go_package = "posts/;postspb";
+
+message CreatePostReq {
+    string username = 1;
+    string text = 2;
+}
+
+message CreatePostResp {
+    string post_id = 1;
+}
+
+message UpdatePostReq {
+    string username = 1;
+    string text = 2;
+    string post_id = 3;
+}
+
+message UpdatePostResp {
+}
+
+message DeletePostReq {
+    string username = 1;
+    string post_id = 2;
+}
+
+message DeletePostResp {
+}
+
+message GetPostReq {
+    string username = 1;
+    string post_id = 2;
+}
+
+message GetPostResp {
+    string text = 1;
+}
+
+message GetAllPostsReq {
+    string username = 1;
+    uint64 from = 2;
+    uint64 count = 3;
+}
+
+message GetAllPostsResp {
+    repeated string post_ids = 1;
+    repeated string texts = 2;
+}
+
+service PostsService {
+    rpc CreatePost(CreatePostReq) returns (CreatePostResp) {}
+    rpc UpdatePost(UpdatePostReq) returns (UpdatePostResp) {}
+    rpc DeletePost(DeletePostReq) returns (DeletePostResp) {}
+    rpc GetPost(GetPostReq) returns (GetPostResp) {}
+    rpc GetAllPosts(GetAllPostsReq) returns (GetAllPostsResp) {}
+}
