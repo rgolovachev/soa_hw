@@ -28,7 +28,7 @@ paths:
           description: Some error from postgres
   /update:
     put:
-      summary: Обновление данных пользователя
+      summary: Update user data
       parameters:
         - name: Cookie
           in: header
@@ -95,3 +95,160 @@ paths:
           description: There is no such user or password is wrong
         '500':
           description: Some error from postgres
+  /create_post:
+    post:
+      summary: Create post
+      parameters:
+        - name: Cookie
+          in: header
+          description: auth token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+      responses:
+        '200':
+          description: Post has been created succesfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  post_id:
+                    type: string
+        '403':
+          description: Cookie is invalid
+        '500':
+          description: Some internal error (with postgres, for example)
+  /update_post/{post_id}:
+    put:
+      summary: Update post
+      parameters:
+        - name: Cookie
+          in: header
+          description: auth token
+          required: true
+          schema:
+            type: string
+        - name: post_id
+          in: path
+          required: true
+          description: post_id
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+      responses:
+        '200':
+          description: Post has been updated succesfully
+        '403':
+          description: Cookie is invalid
+        '404':
+          description: There is no such user with this post_id
+        '500':
+          description: Some internal error (with postgres, for example)
+  /delete_post/{post_id}:
+    delete:
+      summary: Delete post
+      parameters:
+        - name: Cookie
+          in: header
+          description: auth token
+          required: true
+          schema:
+            type: string
+        - name: post_id
+          in: path
+          required: true
+          description: post_id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Post has been deleted succesfully
+        '403':
+          description: Cookie is invalid
+        '404':
+          description: There is no such user with this post_id
+        '500':
+          description: Some internal error (with postgres, for example)
+  /get_post/{post_id}:
+    get:
+      summary: Get post
+      parameters:
+        - name: Cookie
+          in: header
+          description: auth token
+          required: true
+          schema:
+            type: string
+        - name: post_id
+          in: path
+          required: true
+          description: post_id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Post text has been extracted succesfully
+          content:
+            text/plain:
+              schema:
+                type: string
+        '403':
+          description: Cookie is invalid
+        '404':
+          description: There is no such user with this post_id
+        '500':
+          description: Some internal error (with postgres, for example)
+  /get_posts:
+    get:
+      summary: Get all posts of some user
+      parameters:
+        - name: Cookie
+          in: header
+          description: auth token
+          required: true
+          schema:
+            type: string
+        - name: From
+          in: header
+          schema:
+            type: integer
+          description: Starting index for posts
+          required: true
+        - name: Count
+          in: header
+          schema:
+            type: integer
+          description: Number of posts to return
+          required: true
+
+      responses:
+        '200':
+          description: Posts texts and its ids has been extracted succesfully
+          content:
+            text/plain:
+              schema:
+                type: string
+        '403':
+          description: Cookie is invalid
+        '404':
+          description: There is no such user with this post_id
+        '500':
+          description: Some internal error (with postgres, for example)
