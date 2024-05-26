@@ -50,10 +50,19 @@ message GetAllPostsResp {
     repeated string texts = 2;
 }
 
+message CheckIfPostExistsReq {
+    string post_id = 1;
+}
+
+message CheckIfPostExistsResp {
+    bool exists = 1;
+}
+
 service PostsService {
     rpc CreatePost(CreatePostReq) returns (CreatePostResp) {}
     rpc UpdatePost(UpdatePostReq) returns (UpdatePostResp) {}
     rpc DeletePost(DeletePostReq) returns (DeletePostResp) {}
     rpc GetPost(GetPostReq) returns (GetPostResp) {}
     rpc GetAllPosts(GetAllPostsReq) returns (GetAllPostsResp) {}
+    rpc CheckIfPostExists(CheckIfPostExistsReq) returns (CheckIfPostExistsResp) {}
 }

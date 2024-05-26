@@ -78,6 +78,8 @@ services:
     depends_on:
       - kafka
       - clickhouse
+    volumes:
+      - ./posts:/posts
     environment:
       KAFKA_BROKER: kafka:9092
       CLICKHOUSE_URL: clickhouse:9000

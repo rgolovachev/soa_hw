@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"log"
@@ -9,7 +10,13 @@ import (
 	"os/signal"
 	"sync"
 
+	postspb "posts/proto"
+
+	_ "github.com/ClickHouse/clickhouse-go/v2"
+
 	"github.com/IBM/sarama"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 // just following 2.1 from hw statement
@@ -28,8 +35,18 @@ type Message struct {
 	Username string `json:"username"`
 }
 
-func checkIfMsgExists() bool {
-	return true
+var (
+	grpc_conn   *grpc.ClientConn
+	grpc_client postspb.PostsServiceClient
+)
+
+func checkIfPostExists(postID string) (bool, error) {
+	grpc_resp, err := grpc_client.CheckIfPostExists(context.Background(), &postspb.CheckIfPostExistsReq{PostId: postID})
+	if err != nil {
+		return false, err
+	}
+
+	return grpc_resp.Exists, nil
 }
 
 func consumeKafka() {
@@ -60,6 +77,13 @@ func consumeKafka() {
 	}
 	defer conn.Close()
 
+	grpc_conn, err = grpc.Dial("dns:///posts:11777", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	grpc_client = postspb.NewPostsServiceClient(grpc_conn)
+
 	for _, topic := range topics {
 		partitions, err := consumer.Partitions(topic)
 		if err != nil {
@@ -86,8 +110,7 @@ func consumeKafka() {
 							continue
 						}
 
-						// TODO
-						if !checkIfMsgExists() {
+						if exists, err := checkIfPostExists(decodedMsg.PostID); err != nil || !exists {
 							continue
 						}
 
