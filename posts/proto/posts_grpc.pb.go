@@ -27,6 +27,7 @@ type PostsServiceClient interface {
 	DeletePost(ctx context.Context, in *DeletePostReq, opts ...grpc.CallOption) (*DeletePostResp, error)
 	GetPost(ctx context.Context, in *GetPostReq, opts ...grpc.CallOption) (*GetPostResp, error)
 	GetAllPosts(ctx context.Context, in *GetAllPostsReq, opts ...grpc.CallOption) (*GetAllPostsResp, error)
+	CheckIfPostExists(ctx context.Context, in *CheckIfPostExistsReq, opts ...grpc.CallOption) (*CheckIfPostExistsResp, error)
 }
 
 type postsServiceClient struct {
@@ -82,6 +83,15 @@ func (c *postsServiceClient) GetAllPosts(ctx context.Context, in *GetAllPostsReq
 	return out, nil
 }
 
+func (c *postsServiceClient) CheckIfPostExists(ctx context.Context, in *CheckIfPostExistsReq, opts ...grpc.CallOption) (*CheckIfPostExistsResp, error) {
+	out := new(CheckIfPostExistsResp)
+	err := c.cc.Invoke(ctx, "/posts.PostsService/CheckIfPostExists", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PostsServiceServer is the server API for PostsService service.
 // All implementations must embed UnimplementedPostsServiceServer
 // for forward compatibility
@@ -91,6 +101,7 @@ type PostsServiceServer interface {
 	DeletePost(context.Context, *DeletePostReq) (*DeletePostResp, error)
 	GetPost(context.Context, *GetPostReq) (*GetPostResp, error)
 	GetAllPosts(context.Context, *GetAllPostsReq) (*GetAllPostsResp, error)
+	CheckIfPostExists(context.Context, *CheckIfPostExistsReq) (*CheckIfPostExistsResp, error)
 	mustEmbedUnimplementedPostsServiceServer()
 }
 
@@ -112,6 +123,9 @@ func (UnimplementedPostsServiceServer) GetPost(context.Context, *GetPostReq) (*G
 }
 func (UnimplementedPostsServiceServer) GetAllPosts(context.Context, *GetAllPostsReq) (*GetAllPostsResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllPosts not implemented")
+}
+func (UnimplementedPostsServiceServer) CheckIfPostExists(context.Context, *CheckIfPostExistsReq) (*CheckIfPostExistsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckIfPostExists not implemented")
 }
 func (UnimplementedPostsServiceServer) mustEmbedUnimplementedPostsServiceServer() {}
 
@@ -216,6 +230,24 @@ func _PostsService_GetAllPosts_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PostsService_CheckIfPostExists_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckIfPostExistsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PostsServiceServer).CheckIfPostExists(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/posts.PostsService/CheckIfPostExists",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PostsServiceServer).CheckIfPostExists(ctx, req.(*CheckIfPostExistsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PostsService_ServiceDesc is the grpc.ServiceDesc for PostsService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -242,6 +274,10 @@ var PostsService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAllPosts",
 			Handler:    _PostsService_GetAllPosts_Handler,
+		},
+		{
+			MethodName: "CheckIfPostExists",
+			Handler:    _PostsService_CheckIfPostExists_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

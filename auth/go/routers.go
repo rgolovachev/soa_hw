@@ -68,10 +68,17 @@ var routes = Routes{
 	},
 
 	Route{
-		"GetPostsGet",
+		"GetPostsUsernameGet",
 		strings.ToUpper("Get"),
-		"/get_posts",
-		GetPostsGet,
+		"/get_posts/{username}",
+		GetPostsUsernameGet,
+	},
+
+	Route{
+		"LikePostPostIdPost",
+		strings.ToUpper("Post"),
+		"/like_post/{post_id}",
+		LikePostPostIdPost,
 	},
 
 	Route{
@@ -100,5 +107,12 @@ var routes = Routes{
 		strings.ToUpper("Put"),
 		"/update",
 		UpdatePut,
+	},
+
+	Route{
+		"ViewPostPostIdPost",
+		strings.ToUpper("Post"),
+		"/view_post/{post_id}",
+		ViewPostPostIdPost,
 	},
 }
