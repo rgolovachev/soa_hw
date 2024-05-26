@@ -91,12 +91,12 @@ func (s *Server) DeletePost(ctx context.Context, req *postspb.DeletePostReq) (*p
 
 func (s *Server) GetPost(ctx context.Context, req *postspb.GetPostReq) (*postspb.GetPostResp, error) {
 	var post_text string
-	err := s.db.QueryRowContext(ctx, "SELECT post_text FROM posts WHERE username = $1 AND post_id = $2", req.Username, req.PostId).Scan(&post_text)
+	err := s.db.QueryRowContext(ctx, "SELECT post_text FROM posts WHERE post_id = $1", req.PostId).Scan(&post_text)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return &postspb.GetPostResp{}, status.Errorf(codes.NotFound, "there is no post %s for user %s", req.PostId, req.Username)
+			return &postspb.GetPostResp{}, status.Errorf(codes.NotFound, "there is no post with post_id %s", req.PostId)
 		} else {
-			return &postspb.GetPostResp{}, status.Errorf(codes.Internal, "failed while select from posts relation while getting post %s for user %s", req.PostId, req.Username)
+			return &postspb.GetPostResp{}, status.Errorf(codes.Internal, "failed while select from posts relation while getting post %s", req.PostId)
 		}
 	}
 
