@@ -71,3 +71,21 @@ docker exec -it clickhouse clickhouse-client
 `
 SELECT * FROM likes;
 `
+
+hw5
+
+`
+curl -X GET 0.0.0.0:8080/post_stats/<your post_id goes here> -H "Cookie: <your cookie goes here>" -v
+`
+
+`
+curl -X GET 0.0.0.0:8080/top_posts/likes -H "Cookie: <your cookie goes here>"
+`
+
+`
+curl -X GET 0.0.0.0:8080/top_posts/views -H "Cookie: <your cookie goes here>"
+`
+
+`
+curl -X GET 0.0.0.0:8080/top_users -H "Cookie: <your cookie goes here>"
+`
