@@ -17,14 +17,12 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"slices"
 	"strconv"
 	"time"
 
 	postspb "posts/proto"
 
-	"github.com/IBM/sarama"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"google.golang.org/grpc"
@@ -397,13 +395,12 @@ func GetPostPostIdGet(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, grpc_resp.Text)
 }
 
-func GetPostsUsernameGet(w http.ResponseWriter, r *http.Request) {
-	_, err := GetUsername(w, r)
+func GetPostsGet(w http.ResponseWriter, r *http.Request) {
+	username, err := GetUsername(w, r)
 	if err != nil {
 		return
 	}
 
-	posts_author := mux.Vars(r)["username"]
 	from_str, count_str := r.Header.Get("From"), r.Header.Get("Count")
 	if len(from_str) == 0 || len(count_str) == 0 {
 		w.WriteHeader(http.StatusBadRequest)
@@ -425,7 +422,7 @@ func GetPostsUsernameGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := grpc_client.GetAllPosts(context.Background(), &postspb.GetAllPostsReq{Username: posts_author, From: from, Count: count})
+	resp, err := grpc_client.GetAllPosts(context.Background(), &postspb.GetAllPostsReq{Username: username, From: from, Count: count})
 	if err != nil || len(resp.PostIds) != len(resp.Texts) {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintln(w, "Some internal error (with postgres, for example)")
@@ -436,81 +433,6 @@ func GetPostsUsernameGet(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Post #%d with post_id %s:\n", i, resp.PostIds[i])
 		fmt.Fprintf(w, "%s\n\n", resp.Texts[i])
 	}
-}
-
-type Message struct {
-	PostID   string `json:"post_id"`
-	Username string `json:"username"`
-}
-
-type IncEventType uint8
-
-const (
-	LikeEvent IncEventType = iota
-	ViewEvent
-)
-
-func IncEvent(w http.ResponseWriter, r *http.Request, eventType IncEventType) {
-	username, err := GetUsername(w, r)
-	if err != nil {
-		return
-	}
-
-	postID := mux.Vars(r)["post_id"]
-
-	brokers := []string{os.Getenv("KAFKA_BROKER")}
-
-	var topic string
-	if eventType == LikeEvent {
-		topic = "likes"
-	} else {
-		topic = "views"
-	}
-
-	config := sarama.NewConfig()
-	config.Producer.Return.Successes = true
-	producer, err := sarama.NewSyncProducer(brokers, config)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintln(w, err)
-		return
-	}
-	defer producer.Close()
-
-	msg := Message{
-		PostID:   postID,
-		Username: username,
-	}
-	msgBytes, err := json.Marshal(msg)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintln(w, err)
-		return
-	}
-
-	msgToSend := &sarama.ProducerMessage{
-		Topic: topic,
-		Key:   sarama.StringEncoder(msg.PostID),
-		Value: sarama.ByteEncoder(msgBytes),
-	}
-
-	_, _, err = producer.SendMessage(msgToSend)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintln(w, err)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintln(w, "Message was sent successfuly")
-}
-
-func LikePostPostIdPost(w http.ResponseWriter, r *http.Request) {
-	IncEvent(w, r, LikeEvent)
-}
-
-func ViewPostPostIdPost(w http.ResponseWriter, r *http.Request) {
-	IncEvent(w, r, ViewEvent)
 }
 
 func UpdatePostPostIdPut(w http.ResponseWriter, r *http.Request) {

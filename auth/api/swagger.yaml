@@ -106,64 +106,6 @@ paths:
           description: Cookie is invalid
         "500":
           description: "Some internal error (with postgres, for example)"
-  /view_post/{post_id}:
-    post:
-      summary: View post
-      parameters:
-      - name: Cookie
-        in: header
-        description: auth token
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
-      - name: post_id
-        in: path
-        description: post_id
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
-      responses:
-        "200":
-          description: Post was viewed successfuly
-        "403":
-          description: Cookie is invalid
-        "404":
-          description: Post not found
-        "500":
-          description: "Some internal error (with postgres, for example)"
-  /like_post/{post_id}:
-    post:
-      summary: Like post
-      parameters:
-      - name: Cookie
-        in: header
-        description: auth token
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
-      - name: post_id
-        in: path
-        description: post_id
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
-      responses:
-        "200":
-          description: Post was liked successfuly
-        "403":
-          description: Cookie is invalid
-        "404":
-          description: Post not found
-        "500":
-          description: "Some internal error (with postgres, for example)"
   /update_post/{post_id}:
     put:
       summary: Update post
@@ -259,10 +201,10 @@ paths:
         "403":
           description: Cookie is invalid
         "404":
-          description: Post not found
+          description: There is no such user with this post_id
         "500":
           description: "Some internal error (with postgres, for example)"
-  /get_posts/{username}:
+  /get_posts:
     get:
       summary: Get all posts of some user
       parameters:
@@ -290,14 +232,6 @@ paths:
         explode: false
         schema:
           type: integer
-      - name: username
-        in: path
-        description: username
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
       responses:
         "200":
           description: Posts texts and its ids has been extracted succesfully
@@ -309,7 +243,7 @@ paths:
         "403":
           description: Cookie is invalid
         "404":
-          description: There is no such user
+          description: There is no such user with this post_id
         "500":
           description: "Some internal error (with postgres, for example)"
 components:

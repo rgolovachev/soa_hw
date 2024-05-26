@@ -43,31 +43,3 @@ curl -X DELETE 0.0.0.0:8080/delete_post/<post_id of your post> -H "Cookie: <your
 `
 curl -X GET 0.0.0.0:8080/get_posts -H "Cookie: <your cookie goes here>" -H "From: 0" -H "Count: 100"
 `
-
-hw4:
-
-`
-curl -X POST 0.0.0.0:8080/register -d '{"username": "aboba52", "password": "12345"}' -H "Content-Type: application/json" -v
-`
-
-`
-curl -X POST 0.0.0.0:8080/login -d '{"username": "aboba52", "password": "12345"}' -H "Content-Type: application/json" -v
-`
-
-`
-curl -X POST 0.0.0.0:8080/create_post -d '{"text": "post from aboba52"}' -H "Content-Type: application/json" -H "Cookie: <your cookie goes here>"
-`
-
-`
-curl -X POST 0.0.0.0:8080/like_post/<your post_id goes here> -H "Cookie: <your cookie goes here>" -v
-`
-
-view data in CH:
-
-`
-docker exec -it clickhouse clickhouse-client
-`
-
-`
-SELECT * FROM likes;
-`
