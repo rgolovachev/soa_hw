@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package stat;
+
+option go_package = "stat/;statpb";
+
+message GetPostStatsReq {
+    string post_id = 1;
+}
+
+message GetPostStatsResp {
+    uint64 likes = 1;
+    uint64 views = 2;
+}
+
+enum Metric {
+    Likes = 0;
+    Views = 1;
+}
+
+message GetTopPostsReq {
+    Metric sort_by = 1;
+}
+
+message GetTopPostsResp {
+    repeated string post_id = 1;
+    repeated uint64 value = 2;
+}
+
+message GetTopUsersReq {
+}
+
+message GetTopUsersResp {
+    repeated string username = 1;
+    repeated uint64 likes = 2;
+}
+
+service StatService {
+    rpc GetPostStats(GetPostStatsReq) returns (GetPostStatsResp) {}
+    rpc GetTopPosts(GetTopPostsReq) returns (GetTopPostsResp) {}
+    rpc GetTopUsers(GetTopUsersReq) returns (GetTopUsersResp) {}
+}

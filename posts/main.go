@@ -29,6 +29,6 @@ func main() {
 	log.Println("posts service started")
 	err = grpcServer.Serve(lis)
 	if err != nil {
-		log.Fatalf("meta service failed")
+		log.Fatalf("posts service failed")
 	}
 }

@@ -129,12 +129,13 @@ func (s *Server) GetAllPosts(ctx context.Context, req *postspb.GetAllPostsReq) (
 func (s *Server) CheckIfPostExists(ctx context.Context, req *postspb.CheckIfPostExistsReq) (*postspb.CheckIfPostExistsResp, error) {
 	resp := &postspb.CheckIfPostExistsResp{Exists: false}
 
-	var id uint8
-	err := s.db.QueryRowContext(ctx, "SELECT id FROM posts WHERE post_id = $1", req.PostId).Scan(&id)
+	var author string
+	err := s.db.QueryRowContext(ctx, "SELECT username FROM posts WHERE post_id = $1", req.PostId).Scan(&author)
 	if err != nil {
 		return resp, err
 	}
 
 	resp.Exists = true
+	resp.Author = author
 	return resp, nil
 }

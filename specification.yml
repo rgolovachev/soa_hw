@@ -128,6 +128,56 @@ paths:
           description: Cookie is invalid
         '500':
           description: Some internal error (with postgres, for example)
+  /view_post/{post_id}:
+    post:
+      summary: View post
+      parameters:
+        - name: Cookie
+          in: header
+          description: auth token
+          required: true
+          schema:
+            type: string
+        - name: post_id
+          in: path
+          required: true
+          description: post_id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Post was viewed successfuly
+        '403':
+          description: Cookie is invalid
+        '404':
+          description: Post not found
+        '500':
+          description: Some internal error (with postgres, for example)
+  /like_post/{post_id}:
+    post:
+      summary: Like post
+      parameters:
+        - name: Cookie
+          in: header
+          description: auth token
+          required: true
+          schema:
+            type: string
+        - name: post_id
+          in: path
+          required: true
+          description: post_id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Post was liked successfuly
+        '403':
+          description: Cookie is invalid
+        '404':
+          description: Post not found
+        '500':
+          description: Some internal error (with postgres, for example)
   /update_post/{post_id}:
     put:
       summary: Update post
@@ -213,10 +263,10 @@ paths:
         '403':
           description: Cookie is invalid
         '404':
-          description: There is no such user with this post_id
+          description: Post not found
         '500':
           description: Some internal error (with postgres, for example)
-  /get_posts:
+  /get_posts/{username}:
     get:
       summary: Get all posts of some user
       parameters:
@@ -238,6 +288,12 @@ paths:
             type: integer
           description: Number of posts to return
           required: true
+        - name: username
+          in: path
+          required: true
+          description: username
+          schema:
+            type: string
 
       responses:
         '200':
@@ -249,6 +305,126 @@ paths:
         '403':
           description: Cookie is invalid
         '404':
-          description: There is no such user with this post_id
+          description: There is no such user
+        '500':
+          description: Some internal error (with postgres, for example)
+  /post_stats/{post_id}:
+    get:
+      summary: Get post stats
+      parameters:
+        - name: Cookie
+          in: header
+          description: auth token
+          required: true
+          schema:
+            type: string
+        - name: post_id
+          in: path
+          required: true
+          description: post_id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Post stats have been extracted succesfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  post_id:
+                    type: string
+                  likes:
+                    type: integer
+                  views:
+                    type: integer
+        '403':
+          description: Cookie is invalid
+        '404':
+          description: Post not found
+        '500':
+          description: Some internal error (with postgres, for example)
+  /top_posts/{sort_by}:
+    get:
+      summary: Get top 5 posts by likes or views
+      parameters:
+        - name: Cookie
+          in: header
+          description: auth token
+          required: true
+          schema:
+            type: string
+        - name: sort_by
+          in: path
+          required: true
+          description: sort_by may be either likes or views
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Post stats have been extracted succesfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  post_id_0:
+                    type: string
+                  value_0:
+                    type: integer
+                  post_id_1:
+                    type: string
+                  value_1:
+                    type: integer
+                  post_id_2:
+                    type: string
+                  value_2:
+                    type: integer
+                  post_id_3:
+                    type: string
+                  value_3:
+                    type: integer
+                  post_id_4:
+                    type: string
+                  value_4:
+                    type: integer
+        '400':
+          description: sort_by parameter is invalid
+        '403':
+          description: Cookie is invalid
+        '500':
+          description: Some internal error (with postgres, for example)
+  /top_users:
+    get:
+      summary: Get top 3 users by likes
+      parameters:
+        - name: Cookie
+          in: header
+          description: auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Post stats have been extracted succesfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username_0:
+                    type: string
+                  value_0:
+                    type: integer
+                  username_1:
+                    type: string
+                  value_1:
+                    type: integer
+                  username_2:
+                    type: string
+                  value_2:
+                    type: integer
+        '403':
+          description: Cookie is invalid
         '500':
           description: Some internal error (with postgres, for example)

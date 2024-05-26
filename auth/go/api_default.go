@@ -23,6 +23,7 @@ import (
 	"time"
 
 	postspb "posts/proto"
+	statpb "stat/proto"
 
 	"github.com/IBM/sarama"
 	"github.com/google/uuid"
@@ -36,9 +37,11 @@ import (
 )
 
 var (
-	authDB      *sql.DB
-	grpc_conn   *grpc.ClientConn
-	grpc_client postspb.PostsServiceClient
+	authDB            *sql.DB
+	grpc_posts_conn   *grpc.ClientConn
+	grpc_posts_client postspb.PostsServiceClient
+	grpc_stat_conn    *grpc.ClientConn
+	grpc_stat_client  statpb.StatServiceClient
 )
 
 const (
@@ -53,12 +56,18 @@ func init() {
 		log.Fatal(err)
 	}
 
-	grpc_conn, err = grpc.Dial("dns:///posts:11777", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	grpc_posts_conn, err = grpc.Dial("dns:///posts:11777", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	grpc_client = postspb.NewPostsServiceClient(grpc_conn)
+	grpc_stat_conn, err = grpc.Dial("dns:///stat:11888", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	grpc_posts_client = postspb.NewPostsServiceClient(grpc_posts_conn)
+	grpc_stat_client = statpb.NewStatServiceClient(grpc_stat_conn)
 }
 
 func LoginPost(w http.ResponseWriter, r *http.Request) {
@@ -336,7 +345,7 @@ func CreatePostPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	grpc_resp, err := grpc_client.CreatePost(context.Background(), &postspb.CreatePostReq{Username: username, Text: body.Text})
+	grpc_resp, err := grpc_posts_client.CreatePost(context.Background(), &postspb.CreatePostReq{Username: username, Text: body.Text})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintln(w, "Some internal error (with postgres, for example)")
@@ -361,7 +370,7 @@ func DeletePostPostIdDelete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	post_id := mux.Vars(r)["post_id"]
-	_, err = grpc_client.DeletePost(context.Background(), &postspb.DeletePostReq{Username: username, PostId: post_id})
+	_, err = grpc_posts_client.DeletePost(context.Background(), &postspb.DeletePostReq{Username: username, PostId: post_id})
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
 			w.WriteHeader(http.StatusNotFound)
@@ -382,7 +391,7 @@ func GetPostPostIdGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	post_id := mux.Vars(r)["post_id"]
-	grpc_resp, err := grpc_client.GetPost(context.Background(), &postspb.GetPostReq{Username: username, PostId: post_id})
+	grpc_resp, err := grpc_posts_client.GetPost(context.Background(), &postspb.GetPostReq{Username: username, PostId: post_id})
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
 			w.WriteHeader(http.StatusNotFound)
@@ -425,7 +434,7 @@ func GetPostsUsernameGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := grpc_client.GetAllPosts(context.Background(), &postspb.GetAllPostsReq{Username: posts_author, From: from, Count: count})
+	resp, err := grpc_posts_client.GetAllPosts(context.Background(), &postspb.GetAllPostsReq{Username: posts_author, From: from, Count: count})
 	if err != nil || len(resp.PostIds) != len(resp.Texts) {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintln(w, "Some internal error (with postgres, for example)")
@@ -527,7 +536,7 @@ func UpdatePostPostIdPut(w http.ResponseWriter, r *http.Request) {
 	}
 
 	post_id := mux.Vars(r)["post_id"]
-	_, err = grpc_client.UpdatePost(context.Background(), &postspb.UpdatePostReq{Username: username, Text: body.Text, PostId: post_id})
+	_, err = grpc_posts_client.UpdatePost(context.Background(), &postspb.UpdatePostReq{Username: username, Text: body.Text, PostId: post_id})
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
 			w.WriteHeader(http.StatusNotFound)
@@ -540,4 +549,111 @@ func UpdatePostPostIdPut(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintln(w, "Post has been updated succesfully")
+}
+
+func PostStatsPostIdGet(w http.ResponseWriter, r *http.Request) {
+	_, err := GetUsername(w, r)
+	if err != nil {
+		return
+	}
+
+	post_id := mux.Vars(r)["post_id"]
+	post, err := grpc_posts_client.CheckIfPostExists(context.Background(), &postspb.CheckIfPostExistsReq{PostId: post_id})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintln(w, "Some internal error (with postgres, for example)")
+		return
+	}
+	if !post.Exists {
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprintln(w, "Post not found")
+		return
+	}
+
+	stats, err := grpc_stat_client.GetPostStats(context.Background(), &statpb.GetPostStatsReq{PostId: post_id})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintln(w, "Some internal error (with postgres, for example)")
+		return
+	}
+
+	resp := PostStatsResponse{
+		PostId: post_id,
+		Likes:  stats.Likes,
+		Views:  stats.Views,
+	}
+	resp_bytes, err := json.Marshal(resp)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintln(w, "Some internal error (with postgres, for example)")
+		return
+	}
+
+	fmt.Fprintln(w, string(resp_bytes))
+}
+
+func TopPostsSortByGet(w http.ResponseWriter, r *http.Request) {
+	_, err := GetUsername(w, r)
+	if err != nil {
+		return
+	}
+
+	sort_by := mux.Vars(r)["sort_by"]
+	if sort_by != "likes" && sort_by != "views" {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintln(w, "sort_by parameter is invalid")
+		return
+	}
+
+	var top *statpb.GetTopPostsResp
+	if sort_by == "likes" {
+		top, err = grpc_stat_client.GetTopPosts(context.Background(), &statpb.GetTopPostsReq{SortBy: statpb.Metric_Likes})
+	} else {
+		top, err = grpc_stat_client.GetTopPosts(context.Background(), &statpb.GetTopPostsReq{SortBy: statpb.Metric_Views})
+	}
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintln(w, "Some internal error (with postgres, for example)")
+		return
+	}
+
+	resp := TopPostsResponse{
+		PostIds: top.PostId,
+		Values:  top.Value,
+	}
+	resp_bytes, err := json.Marshal(resp)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintln(w, "Some internal error (with postgres, for example)")
+		return
+	}
+
+	fmt.Fprintln(w, string(resp_bytes))
+}
+
+func TopUsersGet(w http.ResponseWriter, r *http.Request) {
+	_, err := GetUsername(w, r)
+	if err != nil {
+		return
+	}
+
+	top, err := grpc_stat_client.GetTopUsers(context.Background(), &statpb.GetTopUsersReq{})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintln(w, "Some internal error (with postgres, for example)")
+		return
+	}
+
+	resp := TopUsersResponse{
+		Usernames: top.Username,
+		Likes:     top.Likes,
+	}
+	resp_bytes, err := json.Marshal(resp)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintln(w, "Some internal error (with postgres, for example)")
+		return
+	}
+
+	fmt.Fprintln(w, string(resp_bytes))
 }

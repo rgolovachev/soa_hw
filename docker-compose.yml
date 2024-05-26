@@ -8,6 +8,7 @@ services:
       - 8080:8080
     volumes:
       - ./posts:/posts
+      - ./stat:/stat
     depends_on:
       - auth_db
       - kafka
@@ -54,7 +55,6 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
-
   kafka:
     image: wurstmeister/kafka:latest
     container_name: kafka
@@ -75,6 +75,7 @@ services:
       dockerfile: stat.dockerfile
     ports:
       - 8081:8081
+      - 11888:11888
     depends_on:
       - kafka
       - clickhouse

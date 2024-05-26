@@ -312,6 +312,95 @@ paths:
           description: There is no such user
         "500":
           description: "Some internal error (with postgres, for example)"
+  /post_stats/{post_id}:
+    get:
+      summary: Get post stats
+      parameters:
+      - name: Cookie
+        in: header
+        description: auth token
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: post_id
+        in: path
+        description: post_id
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Post stats have been extracted succesfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_1'
+        "403":
+          description: Cookie is invalid
+        "404":
+          description: Post not found
+        "500":
+          description: "Some internal error (with postgres, for example)"
+  /top_posts/{sort_by}:
+    get:
+      summary: Get top 5 posts by likes or views
+      parameters:
+      - name: Cookie
+        in: header
+        description: auth token
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: sort_by
+        in: path
+        description: sort_by may be either likes or views
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Post stats have been extracted succesfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_2'
+        "400":
+          description: sort_by parameter is invalid
+        "403":
+          description: Cookie is invalid
+        "500":
+          description: "Some internal error (with postgres, for example)"
+  /top_users:
+    get:
+      summary: Get top 3 users by likes
+      parameters:
+      - name: Cookie
+        in: header
+        description: auth token
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Post stats have been extracted succesfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_3'
+        "403":
+          description: Cookie is invalid
+        "500":
+          description: "Some internal error (with postgres, for example)"
 components:
   schemas:
     register_body:
@@ -363,3 +452,72 @@ components:
       properties:
         text:
           type: string
+    inline_response_200_1:
+      type: object
+      properties:
+        post_id:
+          type: string
+        likes:
+          type: integer
+        views:
+          type: integer
+      example:
+        post_id: post_id
+        views: 6
+        likes: 0
+    inline_response_200_2:
+      type: object
+      properties:
+        post_id_0:
+          type: string
+        value_0:
+          type: integer
+        post_id_1:
+          type: string
+        value_1:
+          type: integer
+        post_id_2:
+          type: string
+        value_2:
+          type: integer
+        post_id_3:
+          type: string
+        value_3:
+          type: integer
+        post_id_4:
+          type: string
+        value_4:
+          type: integer
+      example:
+        post_id_2: post_id_2
+        post_id_1: post_id_1
+        post_id_4: post_id_4
+        post_id_3: post_id_3
+        post_id_0: post_id_0
+        value_4: 5
+        value_2: 1
+        value_3: 5
+        value_0: 0
+        value_1: 6
+    inline_response_200_3:
+      type: object
+      properties:
+        username_0:
+          type: string
+        value_0:
+          type: integer
+        username_1:
+          type: string
+        value_1:
+          type: integer
+        username_2:
+          type: string
+        value_2:
+          type: integer
+      example:
+        username_1: username_1
+        username_2: username_2
+        value_2: 1
+        value_0: 0
+        username_0: username_0
+        value_1: 6
