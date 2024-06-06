@@ -26,12 +26,12 @@ func NewServer() (server *Server, err error) {
 
 func (s *Server) GetPostStats(ctx context.Context, req *statpb.GetPostStatsReq) (*statpb.GetPostStatsResp, error) {
 	var likes_cnt, views_cnt uint64
-	err := s.db.QueryRowContext(ctx, "SELECT COUNT(DISTINCT username) FROM likes WHERE post_id = $1", req.PostId).Scan(&likes_cnt)
+	err := s.db.QueryRowContext(ctx, "SELECT COUNT(DISTINCT user_id) FROM likes WHERE post_id = $1", req.PostId).Scan(&likes_cnt)
 	if err != nil {
 		return &statpb.GetPostStatsResp{}, err
 	}
 
-	err = s.db.QueryRowContext(ctx, "SELECT COUNT(DISTINCT username) FROM views WHERE post_id = $1", req.PostId).Scan(&views_cnt)
+	err = s.db.QueryRowContext(ctx, "SELECT COUNT(DISTINCT user_id) FROM views WHERE post_id = $1", req.PostId).Scan(&views_cnt)
 	if err != nil {
 		return &statpb.GetPostStatsResp{}, err
 	}
@@ -43,9 +43,9 @@ func (s *Server) GetPostStats(ctx context.Context, req *statpb.GetPostStatsReq) 
 func (s *Server) GetTopPosts(ctx context.Context, req *statpb.GetTopPostsReq) (*statpb.GetTopPostsResp, error) {
 	var query string
 	if req.SortBy == statpb.Metric_Likes {
-		query = "SELECT post_id, COUNT(DISTINCT username) AS cnt FROM likes GROUP BY post_id ORDER BY cnt DESC LIMIT 5"
+		query = "SELECT post_id, COUNT(DISTINCT user_id) AS cnt FROM likes GROUP BY post_id ORDER BY cnt DESC LIMIT 5"
 	} else {
-		query = "SELECT post_id, COUNT(DISTINCT username) AS cnt FROM views GROUP BY post_id ORDER BY cnt DESC LIMIT 5"
+		query = "SELECT post_id, COUNT(DISTINCT user_id) AS cnt FROM views GROUP BY post_id ORDER BY cnt DESC LIMIT 5"
 	}
 
 	rows, err := s.db.QueryContext(ctx, query)
@@ -72,25 +72,25 @@ func (s *Server) GetTopPosts(ctx context.Context, req *statpb.GetTopPostsReq) (*
 }
 
 func (s *Server) GetTopUsers(ctx context.Context, req *statpb.GetTopUsersReq) (*statpb.GetTopUsersResp, error) {
-	rows, err := s.db.QueryContext(ctx, "SELECT author, COUNT(DISTINCT username) AS cnt FROM likes GROUP BY author ORDER BY cnt DESC LIMIT 3")
+	rows, err := s.db.QueryContext(ctx, "SELECT author_id, COUNT(DISTINCT user_id) AS cnt FROM likes GROUP BY author_id ORDER BY cnt DESC LIMIT 3")
 	if err != nil {
 		return &statpb.GetTopUsersResp{}, err
 	}
 	defer rows.Close()
 
-	var username string
+	var authorId uint64
 	var cnt uint64
-	usernames := make([]string, 0)
+	authorIds := make([]uint64, 0)
 	cnts := make([]uint64, 0)
 	for rows.Next() {
-		err = rows.Scan(&username, &cnt)
+		err = rows.Scan(&authorId, &cnt)
 		if err != nil {
 			return &statpb.GetTopUsersResp{}, err
 		}
 
-		usernames = append(usernames, username)
+		authorIds = append(authorIds, authorId)
 		cnts = append(cnts, cnt)
 	}
 
-	return &statpb.GetTopUsersResp{Username: usernames, Likes: cnts}, nil
+	return &statpb.GetTopUsersResp{AuthorId: authorIds, Likes: cnts}, nil
 }

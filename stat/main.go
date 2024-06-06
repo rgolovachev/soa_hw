@@ -35,8 +35,8 @@ func handleHTTP() {
 }
 
 type Message struct {
-	PostID   string `json:"post_id"`
-	Username string `json:"username"`
+	PostID string `json:"post_id"`
+	UserID uint64 `json:"user_id"`
 }
 
 var (
@@ -105,16 +105,15 @@ func consumeKafka() {
 							continue
 						}
 
-						// надо поменять грпц метод так чтобы он возвращал автора поста + поменять инсерт ниже
 						resp, err := grpc_client.CheckIfPostExists(context.Background(), &postspb.CheckIfPostExistsReq{PostId: decodedMsg.PostID})
 						if err != nil || !resp.Exists {
 							continue
 						}
 
 						if topic == "likes" {
-							_, err = conn.Exec("INSERT INTO likes (post_id, author, username) VALUES (?, ?, ?)", decodedMsg.PostID, resp.Author, decodedMsg.Username)
+							_, err = conn.Exec("INSERT INTO likes (post_id, author_id, user_id) VALUES (?, ?, ?)", decodedMsg.PostID, resp.AuthorId, decodedMsg.UserID)
 						} else {
-							_, err = conn.Exec("INSERT INTO views (post_id, author, username) VALUES (?, ?, ?)", decodedMsg.PostID, resp.Author, decodedMsg.Username)
+							_, err = conn.Exec("INSERT INTO views (post_id, author_id, user_id) VALUES (?, ?, ?)", decodedMsg.PostID, resp.AuthorId, decodedMsg.UserID)
 						}
 
 						if err != nil {
