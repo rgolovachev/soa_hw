@@ -332,6 +332,30 @@ func GetUsername(w http.ResponseWriter, r *http.Request) (string, error) {
 	return username, nil
 }
 
+func GetUserID(w http.ResponseWriter, r *http.Request, username string) (uint64, error) {
+	var id uint64
+	err := authDB.QueryRow("SELECT id FROM users WHERE username = $1", username).Scan(&id)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintln(w, err)
+		return 0, nil
+	}
+
+	return id, nil
+}
+
+func GetUsernameByUserID(w http.ResponseWriter, r *http.Request, userId uint64) (string, error) {
+	var username string
+	err := authDB.QueryRow("SELECT username FROM users WHERE id = $1", userId).Scan(&username)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintln(w, err)
+		return "", nil
+	}
+
+	return username, nil
+}
+
 func CreatePostPost(w http.ResponseWriter, r *http.Request) {
 	var body CreatePostBody
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
@@ -344,8 +368,12 @@ func CreatePostPost(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
+	userID, err := GetUserID(w, r, username)
+	if err != nil {
+		return
+	}
 
-	grpc_resp, err := grpc_posts_client.CreatePost(context.Background(), &postspb.CreatePostReq{Username: username, Text: body.Text})
+	grpc_resp, err := grpc_posts_client.CreatePost(context.Background(), &postspb.CreatePostReq{UserId: userID, Text: body.Text})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintln(w, "Some internal error (with postgres, for example)")
@@ -368,9 +396,13 @@ func DeletePostPostIdDelete(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
+	userID, err := GetUserID(w, r, username)
+	if err != nil {
+		return
+	}
 
 	post_id := mux.Vars(r)["post_id"]
-	_, err = grpc_posts_client.DeletePost(context.Background(), &postspb.DeletePostReq{Username: username, PostId: post_id})
+	_, err = grpc_posts_client.DeletePost(context.Background(), &postspb.DeletePostReq{UserId: userID, PostId: post_id})
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
 			w.WriteHeader(http.StatusNotFound)
@@ -385,13 +417,13 @@ func DeletePostPostIdDelete(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetPostPostIdGet(w http.ResponseWriter, r *http.Request) {
-	username, err := GetUsername(w, r)
+	_, err := GetUsername(w, r)
 	if err != nil {
 		return
 	}
 
 	post_id := mux.Vars(r)["post_id"]
-	grpc_resp, err := grpc_posts_client.GetPost(context.Background(), &postspb.GetPostReq{Username: username, PostId: post_id})
+	grpc_resp, err := grpc_posts_client.GetPost(context.Background(), &postspb.GetPostReq{PostId: post_id})
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
 			w.WriteHeader(http.StatusNotFound)
@@ -434,7 +466,12 @@ func GetPostsUsernameGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := grpc_posts_client.GetAllPosts(context.Background(), &postspb.GetAllPostsReq{Username: posts_author, From: from, Count: count})
+	userID, err := GetUserID(w, r, posts_author)
+	if err != nil {
+		return
+	}
+
+	resp, err := grpc_posts_client.GetAllPosts(context.Background(), &postspb.GetAllPostsReq{UserId: userID, From: from, Count: count})
 	if err != nil || len(resp.PostIds) != len(resp.Texts) {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintln(w, "Some internal error (with postgres, for example)")
@@ -448,8 +485,8 @@ func GetPostsUsernameGet(w http.ResponseWriter, r *http.Request) {
 }
 
 type Message struct {
-	PostID   string `json:"post_id"`
-	Username string `json:"username"`
+	PostID string `json:"post_id"`
+	UserID uint64 `json:"user_id"`
 }
 
 type IncEventType uint8
@@ -461,6 +498,10 @@ const (
 
 func IncEvent(w http.ResponseWriter, r *http.Request, eventType IncEventType) {
 	username, err := GetUsername(w, r)
+	if err != nil {
+		return
+	}
+	userID, err := GetUserID(w, r, username)
 	if err != nil {
 		return
 	}
@@ -487,8 +528,8 @@ func IncEvent(w http.ResponseWriter, r *http.Request, eventType IncEventType) {
 	defer producer.Close()
 
 	msg := Message{
-		PostID:   postID,
-		Username: username,
+		PostID: postID,
+		UserID: userID,
 	}
 	msgBytes, err := json.Marshal(msg)
 	if err != nil {
@@ -534,9 +575,13 @@ func UpdatePostPostIdPut(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
+	userID, err := GetUserID(w, r, username)
+	if err != nil {
+		return
+	}
 
 	post_id := mux.Vars(r)["post_id"]
-	_, err = grpc_posts_client.UpdatePost(context.Background(), &postspb.UpdatePostReq{Username: username, Text: body.Text, PostId: post_id})
+	_, err = grpc_posts_client.UpdatePost(context.Background(), &postspb.UpdatePostReq{UserId: userID, Text: body.Text, PostId: post_id})
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
 			w.WriteHeader(http.StatusNotFound)
@@ -644,8 +689,18 @@ func TopUsersGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	usernames := make([]string, 0)
+	for _, authorId := range top.AuthorId {
+		curUsername, err := GetUsernameByUserID(w, r, authorId)
+		if err != nil {
+			return
+		}
+
+		usernames = append(usernames, curUsername)
+	}
+
 	resp := TopUsersResponse{
-		Usernames: top.Username,
+		Usernames: usernames,
 		Likes:     top.Likes,
 	}
 	resp_bytes, err := json.Marshal(resp)

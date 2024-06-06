@@ -31,7 +31,7 @@ message GetTopUsersReq {
 }
 
 message GetTopUsersResp {
-    repeated string username = 1;
+    repeated uint64 author_id = 1;
     repeated uint64 likes = 2;
 }
 

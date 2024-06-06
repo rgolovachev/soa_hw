@@ -5,7 +5,7 @@ package posts;
 option go_package = "posts/;postspb";
 
 message CreatePostReq {
-    string username = 1;
+    uint64 user_id = 1;
     string text = 2;
 }
 
@@ -14,7 +14,7 @@ message CreatePostResp {
 }
 
 message UpdatePostReq {
-    string username = 1;
+    uint64 user_id = 1;
     string text = 2;
     string post_id = 3;
 }
@@ -23,7 +23,7 @@ message UpdatePostResp {
 }
 
 message DeletePostReq {
-    string username = 1;
+    uint64 user_id = 1;
     string post_id = 2;
 }
 
@@ -31,8 +31,7 @@ message DeletePostResp {
 }
 
 message GetPostReq {
-    string username = 1;
-    string post_id = 2;
+    string post_id = 1;
 }
 
 message GetPostResp {
@@ -40,7 +39,7 @@ message GetPostResp {
 }
 
 message GetAllPostsReq {
-    string username = 1;
+    uint64 user_id = 1;
     uint64 from = 2;
     uint64 count = 3;
 }
@@ -55,7 +54,7 @@ message CheckIfPostExistsReq {
 }
 
 message CheckIfPostExistsResp {
-    string author = 1;
+    uint64 author_id = 1;
     bool exists = 2;
 }
 
