@@ -5,18 +5,22 @@ import (
 	"database/sql"
 	"encoding/json"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"sync"
 
 	postspb "posts/proto"
+	statpb "stat/proto"
+	stat "stat/stat_grpc"
 
 	_ "github.com/ClickHouse/clickhouse-go/v2"
 
 	"github.com/IBM/sarama"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/reflection"
 )
 
 // just following 2.1 from hw statement
@@ -39,15 +43,6 @@ var (
 	grpc_conn   *grpc.ClientConn
 	grpc_client postspb.PostsServiceClient
 )
-
-func checkIfPostExists(postID string) (bool, error) {
-	grpc_resp, err := grpc_client.CheckIfPostExists(context.Background(), &postspb.CheckIfPostExistsReq{PostId: postID})
-	if err != nil {
-		return false, err
-	}
-
-	return grpc_resp.Exists, nil
-}
 
 func consumeKafka() {
 	config := sarama.NewConfig()
@@ -110,14 +105,16 @@ func consumeKafka() {
 							continue
 						}
 
-						if exists, err := checkIfPostExists(decodedMsg.PostID); err != nil || !exists {
+						// надо поменять грпц метод так чтобы он возвращал автора поста + поменять инсерт ниже
+						resp, err := grpc_client.CheckIfPostExists(context.Background(), &postspb.CheckIfPostExistsReq{PostId: decodedMsg.PostID})
+						if err != nil || !resp.Exists {
 							continue
 						}
 
 						if topic == "likes" {
-							_, err = conn.Exec("INSERT INTO likes (post_id, username) VALUES (?, ?)", decodedMsg.PostID, decodedMsg.Username)
+							_, err = conn.Exec("INSERT INTO likes (post_id, author, username) VALUES (?, ?, ?)", decodedMsg.PostID, resp.Author, decodedMsg.Username)
 						} else {
-							_, err = conn.Exec("INSERT INTO views (post_id, username) VALUES (?, ?)", decodedMsg.PostID, decodedMsg.Username)
+							_, err = conn.Exec("INSERT INTO views (post_id, author, username) VALUES (?, ?, ?)", decodedMsg.PostID, resp.Author, decodedMsg.Username)
 						}
 
 						if err != nil {
@@ -143,10 +140,33 @@ func consumeKafka() {
 	close(doneCh)
 }
 
+func handleGrpc() {
+	lis, err := net.Listen("tcp", "0.0.0.0:11888")
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+
+	grpcServer := grpc.NewServer()
+	reflection.Register(grpcServer)
+
+	stat_service, err := stat.NewServer()
+	if err != nil {
+		log.Fatalf("failed to open DB: %v", err)
+	}
+
+	statpb.RegisterStatServiceServer(grpcServer, stat_service)
+
+	log.Println("stat grpc service started")
+	err = grpcServer.Serve(lis)
+	if err != nil {
+		log.Fatalf("stat grpc service failed")
+	}
+}
+
 func main() {
 	var wg sync.WaitGroup
 
-	wg.Add(2)
+	wg.Add(3)
 	httpServer := func() {
 		defer wg.Done()
 
@@ -157,9 +177,15 @@ func main() {
 
 		consumeKafka()
 	}
+	grpcServer := func() {
+		defer wg.Done()
+
+		handleGrpc()
+	}
 
 	go httpServer()
 	go kafkaConsumer()
+	go grpcServer()
 
 	wg.Wait()
 }

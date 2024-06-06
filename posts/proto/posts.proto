@@ -55,7 +55,8 @@ message CheckIfPostExistsReq {
 }
 
 message CheckIfPostExistsResp {
-    bool exists = 1;
+    string author = 1;
+    bool exists = 2;
 }
 
 service PostsService {

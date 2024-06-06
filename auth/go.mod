@@ -6,6 +6,7 @@ require (
 	github.com/gorilla/mux v1.8.1
 	github.com/lib/pq v1.10.9
 	posts v1.0.0
+	stat v1.0.0
 )
 
 require (
@@ -29,6 +30,8 @@ require (
 )
 
 replace posts v1.0.0 => ../posts
+
+replace stat v1.0.0 => ../stat
 
 replace auth v1.0.0 => ./go
 

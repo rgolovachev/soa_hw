@@ -89,10 +89,31 @@ var routes = Routes{
 	},
 
 	Route{
+		"PostStatsPostIdGet",
+		strings.ToUpper("Get"),
+		"/post_stats/{post_id}",
+		PostStatsPostIdGet,
+	},
+
+	Route{
 		"RegisterPost",
 		strings.ToUpper("Post"),
 		"/register",
 		RegisterPost,
+	},
+
+	Route{
+		"TopPostsSortByGet",
+		strings.ToUpper("Get"),
+		"/top_posts/{sort_by}",
+		TopPostsSortByGet,
+	},
+
+	Route{
+		"TopUsersGet",
+		strings.ToUpper("Get"),
+		"/top_users",
+		TopUsersGet,
 	},
 
 	Route{
