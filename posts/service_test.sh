@@ -1,9 +1,9 @@
 #!/bin/bash
 
-docker-compose -f service_test.yml build > /dev/null 2>&1
-docker-compose -f service_test.yml up -d > /dev/null 2>&1
+docker-compose -f service_test.yml build
+docker-compose -f service_test.yml up -d
 
-sleep 25
+sleep 40
 
 output1=$(grpcurl -d '{"username": "bob", "text":"abcd"}' -plaintext 0.0.0.0:11777 posts.PostsService/CreatePost)
 if [ $? -ne 0 ]; then

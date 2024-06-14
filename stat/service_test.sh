@@ -1,11 +1,11 @@
 #!/bin/bash
 
-docker-compose -f service_test.yml build > /dev/null 2>&1
+docker-compose -f service_test.yml build
 echo "build done"
-docker-compose -f service_test.yml up -d > /dev/null 2>&1
+docker-compose -f service_test.yml up -d
 echo "up done"
 
-sleep 25
+sleep 40
 
 docker exec -it clickhouse clickhouse-client --query="INSERT INTO likes (*) VALUES ('some_uid0', 'vasya', 'petya')" > /dev/null 2>&1
 docker exec -it clickhouse clickhouse-client --query="INSERT INTO likes (*) VALUES ('some_uid0', 'vasya', 'petya2')" > /dev/null 2>&1
