@@ -136,4 +136,11 @@ var routes = Routes{
 		"/view_post/{post_id}",
 		ViewPostPostIdPost,
 	},
+
+	Route{
+		"HealthCheck",
+		strings.ToUpper("Get"),
+		"/check",
+		HealthCheck,
+	},
 }

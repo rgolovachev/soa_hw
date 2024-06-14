@@ -1,0 +1,22 @@
+services:
+  posts:
+    container_name: posts
+    build:
+      context: .
+      dockerfile: posts.dockerfile
+    ports:
+      - 11777:11777
+    depends_on:
+      - posts_db
+  posts_db:
+    container_name: posts_db
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: posts_db
+      POSTGRES_USER: posts
+      POSTGRES_PASSWORD: super_secret_pass
+    ports:
+      - 5432:5432
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -42,6 +43,7 @@ type Message struct {
 var (
 	grpc_conn   *grpc.ClientConn
 	grpc_client postspb.PostsServiceClient
+	testAuthor  string = os.Getenv("TEST_AUTHOR")
 )
 
 func consumeKafka() {
@@ -72,12 +74,14 @@ func consumeKafka() {
 	}
 	defer conn.Close()
 
-	grpc_conn, err = grpc.Dial("dns:///posts:11777", grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		log.Fatal(err)
-	}
+	if testAuthor != "test" {
+		grpc_conn, err = grpc.Dial("dns:///posts:11777", grpc.WithTransportCredentials(insecure.NewCredentials()))
+		if err != nil {
+			log.Fatal(err)
+		}
 
-	grpc_client = postspb.NewPostsServiceClient(grpc_conn)
+		grpc_client = postspb.NewPostsServiceClient(grpc_conn)
+	}
 
 	for _, topic := range topics {
 		partitions, err := consumer.Partitions(topic)
@@ -105,16 +109,23 @@ func consumeKafka() {
 							continue
 						}
 
-						// надо поменять грпц метод так чтобы он возвращал автора поста + поменять инсерт ниже
-						resp, err := grpc_client.CheckIfPostExists(context.Background(), &postspb.CheckIfPostExistsReq{PostId: decodedMsg.PostID})
-						if err != nil || !resp.Exists {
-							continue
+						var author string
+
+						if testAuthor != "test" {
+							resp, err := grpc_client.CheckIfPostExists(context.Background(), &postspb.CheckIfPostExistsReq{PostId: decodedMsg.PostID})
+							if err != nil || !resp.Exists {
+								continue
+							}
+
+							author = resp.Author
+						} else {
+							author = testAuthor
 						}
 
 						if topic == "likes" {
-							_, err = conn.Exec("INSERT INTO likes (post_id, author, username) VALUES (?, ?, ?)", decodedMsg.PostID, resp.Author, decodedMsg.Username)
+							_, err = conn.Exec("INSERT INTO likes (post_id, author, username) VALUES (?, ?, ?)", decodedMsg.PostID, author, decodedMsg.Username)
 						} else {
-							_, err = conn.Exec("INSERT INTO views (post_id, author, username) VALUES (?, ?, ?)", decodedMsg.PostID, resp.Author, decodedMsg.Username)
+							_, err = conn.Exec("INSERT INTO views (post_id, author, username) VALUES (?, ?, ?)", decodedMsg.PostID, author, decodedMsg.Username)
 						}
 
 						if err != nil {
@@ -166,25 +177,37 @@ func handleGrpc() {
 func main() {
 	var wg sync.WaitGroup
 
-	wg.Add(3)
-	httpServer := func() {
-		defer wg.Done()
+	env := os.Getenv("STAT_ENV")
+	fmt.Fprintf(os.Stderr, "env: %v\n", env)
 
-		handleHTTP()
-	}
-	kafkaConsumer := func() {
-		defer wg.Done()
+	if env != "service_testing" {
+		wg.Add(1)
+		httpServer := func() {
+			defer wg.Done()
 
-		consumeKafka()
+			handleHTTP()
+		}
+		go httpServer()
 	}
+
+	if env != "service_testing" {
+		wg.Add(1)
+		kafkaConsumer := func() {
+			defer wg.Done()
+
+			consumeKafka()
+		}
+
+		go kafkaConsumer()
+	}
+
+	wg.Add(1)
 	grpcServer := func() {
 		defer wg.Done()
 
 		handleGrpc()
 	}
 
-	go httpServer()
-	go kafkaConsumer()
 	go grpcServer()
 
 	wg.Wait()

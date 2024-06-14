@@ -9,6 +9,7 @@ require (
 )
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/lib/pq v1.10.9
 	golang.org/x/net v0.20.0 // indirect

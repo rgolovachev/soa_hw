@@ -1,0 +1,23 @@
+services:
+  stat:
+    container_name: stat
+    build:
+      context: .
+      dockerfile: stat.dockerfile
+    ports:
+      - 11888:11888
+    depends_on:
+      - clickhouse
+    volumes:
+      - ../posts:/posts
+    environment:
+      CLICKHOUSE_URL: clickhouse:9000
+      STAT_ENV: "service_testing"
+  clickhouse:
+    image: yandex/clickhouse-server:latest
+    container_name: clickhouse
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql

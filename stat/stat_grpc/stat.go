@@ -26,12 +26,12 @@ func NewServer() (server *Server, err error) {
 
 func (s *Server) GetPostStats(ctx context.Context, req *statpb.GetPostStatsReq) (*statpb.GetPostStatsResp, error) {
 	var likes_cnt, views_cnt uint64
-	err := s.db.QueryRowContext(ctx, "SELECT COUNT(DISTINCT username) FROM likes WHERE post_id = $1", req.PostId).Scan(&likes_cnt)
+	err := s.db.QueryRowContext(ctx, "SELECT COUNT(DISTINCT username) AS cnt FROM likes WHERE post_id = $1", req.PostId).Scan(&likes_cnt)
 	if err != nil {
 		return &statpb.GetPostStatsResp{}, err
 	}
 
-	err = s.db.QueryRowContext(ctx, "SELECT COUNT(DISTINCT username) FROM views WHERE post_id = $1", req.PostId).Scan(&views_cnt)
+	err = s.db.QueryRowContext(ctx, "SELECT COUNT(DISTINCT username) AS cnt FROM views WHERE post_id = $1", req.PostId).Scan(&views_cnt)
 	if err != nil {
 		return &statpb.GetPostStatsResp{}, err
 	}
