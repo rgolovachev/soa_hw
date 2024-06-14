@@ -5,6 +5,7 @@ go 1.22.0
 require (
 	github.com/gorilla/mux v1.8.1
 	github.com/lib/pq v1.10.9
+	mock_posts v1.0.0
 	posts v1.0.0
 	stat v1.0.0
 )
@@ -35,9 +36,12 @@ replace stat v1.0.0 => ../stat
 
 replace auth v1.0.0 => ./go
 
+replace mock_posts v1.0.0 => ../posts/proto/mock
+
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/IBM/sarama v1.43.2
-	github.com/golang/protobuf v1.5.4 // indirect
+	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.6.0
 	golang.org/x/net v0.24.0 // indirect
 	golang.org/x/sys v0.19.0 // indirect

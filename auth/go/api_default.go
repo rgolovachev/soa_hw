@@ -38,6 +38,8 @@ import (
 
 var (
 	authDB            *sql.DB
+	tokenCreator      TokenCreator
+	tsCreator         TimestampCreator
 	grpc_posts_conn   *grpc.ClientConn
 	grpc_posts_client postspb.PostsServiceClient
 	grpc_stat_conn    *grpc.ClientConn
@@ -49,12 +51,35 @@ const (
 	expiresDeltaSecs = 10000
 )
 
+type TokenCreator interface {
+	New() uuid.UUID
+}
+
+type TimestampCreator interface {
+	Now() time.Time
+}
+
+type UUIDTokenCreator struct{}
+
+func (c *UUIDTokenCreator) New() uuid.UUID {
+	return uuid.New()
+}
+
+type CurrentTimestampCreator struct{}
+
+func (c *CurrentTimestampCreator) Now() time.Time {
+	return time.Now()
+}
+
 func init() {
 	var err error
 	authDB, err = sql.Open("postgres", dbConnStr)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	tokenCreator = &UUIDTokenCreator{}
+	tsCreator = &CurrentTimestampCreator{}
 
 	grpc_posts_conn, err = grpc.Dial("dns:///posts:11777", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -68,6 +93,9 @@ func init() {
 
 	grpc_posts_client = postspb.NewPostsServiceClient(grpc_posts_conn)
 	grpc_stat_client = statpb.NewStatServiceClient(grpc_stat_conn)
+}
+
+func HealthCheck(_ http.ResponseWriter, _ *http.Request) {
 }
 
 func LoginPost(w http.ResponseWriter, r *http.Request) {
@@ -129,8 +157,8 @@ func LoginPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cur_token := uuid.New().String()
-	cur_created := time.Now()
+	cur_token := tokenCreator.New().String()
+	cur_created := tsCreator.Now()
 
 	if err == nil {
 		_, err = tx.Exec("UPDATE user_sessions SET token = $2, created = $3 WHERE username = $1", user_with_pass.Username, cur_token, cur_created)
